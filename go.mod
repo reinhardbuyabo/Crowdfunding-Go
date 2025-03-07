@@ -12,6 +12,7 @@ require (
 )
 
 require (
+	github.com/AndroidStudyOpenSource/mpesa-api-go v0.0.0-20200405214254-b756218379d3 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect

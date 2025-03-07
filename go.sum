@@ -1,3 +1,5 @@
+github.com/AndroidStudyOpenSource/mpesa-api-go v0.0.0-20200405214254-b756218379d3 h1:px5Bjk3Co1pylVV9de7urZP30A8NtrRLJV9jFGURdLw=
+github.com/AndroidStudyOpenSource/mpesa-api-go v0.0.0-20200405214254-b756218379d3/go.mod h1:9UKwyRedMT1/4O6CkMso3gABGliFK6QsKO4a8qY7liM=
 github.com/bytedance/sonic v1.11.6 h1:oUp34TzMlL+OY1OUWxHqsdkgC/Zfc85zGqw9siXjrc0=
 github.com/bytedance/sonic v1.11.6/go.mod h1:LysEHSvpvDySVdC2f87zGWf6CIKJcAvqab1ZaiQtds4=
 github.com/bytedance/sonic/loader v0.1.1 h1:c+e5Pt1k/cy5wMveRDyk2X4B9hF4g7an8N3zCYjJFNM=

@@ -24,10 +24,19 @@ type Campaign struct {
 	Image           string    `json:"image"`
 }
 
+type Donation struct {
+	ID           int       `json:"id"`
+	CampaignID   int       `json:"campaignId"`
+	Donor        string    `json:"donor"`
+	Amount       float64   `json:"amount"`
+	DonationDate time.Time `json:"donationDate"`
+}
+
 // Repository Interface
 type CampaignRepository interface {
 	CreateCampaign(campaign *Campaign) error
 	GetCampaigns() ([]Campaign, error)
+	DonateToCampaign(donation *Donation) error
 }
 
 // PostgreSQL Repository Implementation
@@ -131,6 +140,25 @@ func NewCampaignController(service *CampaignService) *CampaignController {
 	return &CampaignController{service: service}
 }
 
+// donation
+func (c *CampaignController) DonateToCampaign(ctx *gin.Context) {
+	var donation Donation
+	if err := ctx.BindJSON(&donation); err != nil {
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	donation.DonationDate = time.Now()
+
+	if err := c.service.DonateToCampaign(&donation); err != nil {
+		ctx.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(200, gin.H{"message": "Donation successful", "donation": donation})
+
+}
+
 func (c *CampaignController) CreateCampaign(ctx *gin.Context) {
 	var campaign Campaign
 	if err := ctx.BindJSON(&campaign); err != nil {
@@ -154,6 +182,11 @@ func (c *CampaignController) GetCampaigns(ctx *gin.Context) {
 	}
 
 	ctx.JSON(200, campaigns)
+}
+
+// Next
+func (s *CampaignService) DonateToCampaign(donation *Donation) error {
+	return s.repo.DonateToCampaign(donation)
 }
 
 // env variables
@@ -212,6 +245,19 @@ func BuildConnectionString(config DatabaseConfig) string {
 	)
 }
 
+// Donate to Campaign Method
+func (r *PostgresCampaignRepository) DonateToCampaign(donation *Donation) error {
+	query := "INSERT INTO donations (campaign_id, donor, amount, donation_date) VALUES ($1, $2, $3, $4) RETURNING id"
+	err := r.db.QueryRow(query, donation.CampaignID, donation.Donor, donation.Amount, donation.DonationDate).Scan(&donation.ID)
+	if err != nil {
+		return err
+	}
+
+	updateQuery := "UPDATE campaigns SET amount_collected = amount_collected + $1 WHERE id = $2"
+	_, err = r.db.Exec(updateQuery, donation.Amount, donation.CampaignID)
+	return err
+}
+
 // Main Setup
 func main() {
 	// Load database configuration
@@ -241,6 +287,7 @@ func main() {
 	// Routes
 	router.POST("/api/campaigns", controller.CreateCampaign)
 	router.GET("/api/campaigns", controller.GetCampaigns)
+	router.POST("/api/campaigns/:id/donate", controller.DonateToCampaign) // r.POST("/api/campaigns/:id/donate", controller.DonateToCampaign)
 
 	// Start Server
 	router.Run(":8080")
